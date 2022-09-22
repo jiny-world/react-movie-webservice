@@ -1,0 +1,10 @@
+{
+  "files": {
+    "main.js": "/react-movie-webservice/static/js/main.7ad5a90e.js",
+    "index.html": "/react-movie-webservice/index.html",
+    "main.7ad5a90e.js.map": "/react-movie-webservice/static/js/main.7ad5a90e.js.map"
+  },
+  "entrypoints": [
+    "static/js/main.7ad5a90e.js"
+  ]
+}
