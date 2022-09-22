@@ -96,7 +96,7 @@ const MovieInfoBox = styled(motion.div)`
 const BigMovie = styled(motion.div)`
   position: fixed;
   width: 35vw;
-  min-width: 430px;
+  min-width: 380px;
   height: 70vh;
   background-color: black;
   top: 100px;
