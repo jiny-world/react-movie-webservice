@@ -48,19 +48,6 @@ const Overview = styled.span`
   width: 50%;
 `;
 
-const Slider = styled.div`
-  position: relative;
-  top: -100px;
-  margin: 20px;
-  height: 200px;
-`;
-
-const SliderHeader = styled.span`
-  font-size: 30px;
-  margin-bottom: 5px;
-  font-weight: 700;
-`;
-
 const Row = styled(motion.div)`
   display: grid;
   grid-template-columns: repeat(6, 1fr);
@@ -282,67 +269,7 @@ function Home() {
                 : data?.results[0].overview}
             </Overview>
           </Banner>
-          <Slider>
-            <SliderHeader>Now Playing</SliderHeader>
-            <SliderButton>
-              <motion.svg
-                onClick={decreaseIndex}
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 384 512"
-              >
-                <path
-                  fill="white"
-                  d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l192 192c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 278.6 86.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-192 192z"
-                />
-              </motion.svg>
-              <svg
-                onClick={increaseIndex}
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 384 512"
-              >
-                <path
-                  fill="white"
-                  d="M342.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-192 192c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L274.7 256 105.4 86.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l192 192z"
-                />
-              </svg>
-            </SliderButton>
-            <AnimatePresence
-              initial={false}
-              onExitComplete={toggleLeaving}
-              custom={{ isBack }}
-            >
-              <Row
-                custom={{ isBack }}
-                variants={rowVariants}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-                transition={{ duration: 0.8 }}
-                key={sliderIndex}
-              >
-                {data?.results
-                  .slice(1)
-                  .slice(offset * sliderIndex, offset * sliderIndex + offset)
-                  .map((movie) => (
-                    <Box
-                      layoutId={movie.id + ""}
-                      onClick={() => onBoxClick(movie.id)}
-                      variants={boxVariants}
-                      whileHover="hover"
-                      key={movie.id}
-                      boxbgphoto={makeImagePath(
-                        movie.backdrop_path || "",
-                        "w500"
-                      )}
-                    >
-                      <MovieInfoBox variants={movieInfoBoxVariants}>
-                        <h4>{movie.title}</h4>
-                      </MovieInfoBox>
-                    </Box>
-                  ))}
-              </Row>
-            </AnimatePresence>
-          </Slider>
+          <Slider></Slider>
           {bigMovieMatch && (
             <>
               <AnimatePresence>
