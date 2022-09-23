@@ -9,18 +9,18 @@ import {
   getMovieInfo,
   IGetCurrentMovieData,
 } from "../api";
-import { makeImagePath } from "../utils";
+import { makeImagePath, SliderTypes } from "../utils";
 
 const SliderRow = styled.div`
   position: relative;
-  top: -100px;
   margin: 20px;
   height: 200px;
+  margin-bottom: 100px;
 `;
 
 const SliderHeader = styled.span`
   font-size: 30px;
-  margin-bottom: 5px;
+  margin-bottom: 10px;
   font-weight: 700;
 `;
 
@@ -79,6 +79,46 @@ const Box = styled(motion.div)<{ boxbgphoto: string }>`
   }
   position: relative;
 `;
+const BigMovie = styled(motion.div)`
+  position: fixed;
+  width: 45vw;
+  min-width: 380px;
+  height: 80vh;
+  background-color: ${(props) => props.theme.black.lighter};
+  z-index: 99;
+  display: flex;
+  flex-direction: column;
+  border-radius: 10px;
+  overflow: hidden;
+  top: 10vh;
+  margin: 0 auto;
+  left: 0;
+  right: 0;
+`;
+
+const BigCoverImg = styled.div`
+  width: 100%;
+  max-height: 30vh;
+  height: 30vh;
+  background-size: cover;
+  background-position: center center;
+  position: relative;
+`;
+
+const BigCoverTitle = styled.h2`
+  color: ${(props) => props.theme.white.lighter};
+  font-weight: 700;
+  font-size: 40px;
+  margin: 10px;
+  bottom: 0;
+  position: absolute;
+`;
+
+const BigOverview = styled.div`
+  color: ${(props) => props.theme.white.lighter};
+  margin: 10px;
+  position: relative;
+`;
 
 interface IRowVariantsCustom {
   isBack: boolean;
@@ -121,12 +161,18 @@ const movieInfoBoxVariants = {
     },
   },
 };
-function Slider() {
+function Slider({ type }: { type: SliderTypes }) {
   const history = useHistory();
-
   const { data, isLoading } = useQuery<IGetMoviewsResult>(
-    ["movies", "nowPlaying"],
-    getMovies
+    ["movies", type],
+    () => getMovies(type)
+  );
+  const bigMovieMatch = useRouteMatch<{ movieId: string; types: string }>(
+    `/movies/:types/:movieId`
+  );
+  const { data: currentMovieData } = useQuery<IGetCurrentMovieData>(
+    ["currentMovieData", bigMovieMatch?.params.movieId],
+    () => getMovieInfo(bigMovieMatch ? bigMovieMatch?.params.movieId : "")
   );
   const offset = 6;
   const decreaseIndex = () => {
@@ -163,12 +209,27 @@ function Slider() {
     setLeaving((prev) => !prev);
   };
   const onBoxClick = (movieId: number) => {
-    history.push(`/movies/${movieId}`);
+    history.push(`/movies/${type}/${movieId}`);
   };
+
+  const onBoxCloseClick = () => {
+    history.push(`/`);
+  };
+
   return (
     <>
       <SliderRow>
-        <SliderHeader>Now Playing</SliderHeader>
+        <SliderHeader>
+          {type === SliderTypes.nowPlaying
+            ? "Now Playing"
+            : type === SliderTypes.topRated
+            ? "Top Rate"
+            : type === SliderTypes.popular
+            ? "Popular"
+            : type === SliderTypes.upcoming
+            ? "Upcoming"
+            : ""}
+        </SliderHeader>
         <SliderButton>
           <motion.svg
             onClick={decreaseIndex}
@@ -197,24 +258,24 @@ function Slider() {
           custom={{ isBack }}
         >
           <Row
+            key={type + sliderIndex}
             custom={{ isBack }}
             variants={rowVariants}
             initial="hidden"
             animate="visible"
             exit="exit"
             transition={{ duration: 0.8 }}
-            key={sliderIndex}
           >
             {data?.results
               .slice(1)
               .slice(offset * sliderIndex, offset * sliderIndex + offset)
               .map((movie) => (
                 <Box
-                  layoutId={movie.id + ""}
+                  layoutId={type + movie.id}
+                  key={type + movie.id}
                   onClick={() => onBoxClick(movie.id)}
                   variants={boxVariants}
                   whileHover="hover"
-                  key={movie.id}
                   boxbgphoto={makeImagePath(movie.backdrop_path || "", "w500")}
                 >
                   <MovieInfoBox variants={movieInfoBoxVariants}>
@@ -224,6 +285,54 @@ function Slider() {
               ))}
           </Row>
         </AnimatePresence>
+        {bigMovieMatch && (
+          <>
+            <AnimatePresence>
+              <motion.div
+                onClick={onBoxCloseClick}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                style={{
+                  width: " 100vw",
+                  height: " 100vh",
+                  backgroundColor: "rgba(0,0,0,0.5)",
+                  position: "fixed",
+                  top: 0,
+                  opacity: 0,
+                  zIndex: 3,
+                  left: 0,
+                }}
+              ></motion.div>
+              <BigMovie
+                layoutId={
+                  bigMovieMatch?.params.types + bigMovieMatch?.params.movieId
+                }
+              >
+                {currentMovieData && (
+                  <>
+                    <BigCoverImg
+                      style={{
+                        backgroundImage: `linear-gradient(to top, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0)),
+                     url(${makeImagePath(
+                       currentMovieData?.backdrop_path,
+                       "w400"
+                     )})`,
+                      }}
+                    >
+                      <BigCoverTitle>
+                        {currentMovieData?.original_title}
+                      </BigCoverTitle>
+                    </BigCoverImg>
+                    <BigOverview>
+                      <p>{currentMovieData?.overview}</p>
+                      <p>{Number(currentMovieData?.vote_average).toFixed(1)}</p>
+                    </BigOverview>
+                  </>
+                )}
+              </BigMovie>
+            </AnimatePresence>
+          </>
+        )}
       </SliderRow>
     </>
   );

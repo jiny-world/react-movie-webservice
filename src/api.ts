@@ -24,11 +24,13 @@ export interface IGetCurrentMovieData {
   overview: string;
   original_title: string;
   vote_average: string;
+  backdrop_path: string;
+  id: string;
 }
 
-export function getMovies() {
+export function getMovies(types: string) {
   return fetch(
-    `${BASE_PATH}/movie/now_playing?api_key=${API_KEY}&language=${LANGUAGE}&page=1`
+    `${BASE_PATH}/movie/${types}?api_key=${API_KEY}&language=${LANGUAGE}&page=1`
   ).then((response) => response.json());
 }
 
