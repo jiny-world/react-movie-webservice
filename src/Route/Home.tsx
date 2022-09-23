@@ -10,6 +10,7 @@ import { makeImagePath } from "../utils";
 import { motion, AnimatePresence, useScroll } from "framer-motion";
 import { useState } from "react";
 import { useHistory, useRouteMatch } from "react-router-dom";
+import Slider from "../Components/Slider";
 
 const Wrapper = styled.div`
   background-color: black;
@@ -50,7 +51,14 @@ const Overview = styled.span`
 const Slider = styled.div`
   position: relative;
   top: -100px;
-  margin: 5px;
+  margin: 20px;
+  height: 200px;
+`;
+
+const SliderHeader = styled.span`
+  font-size: 30px;
+  margin-bottom: 5px;
+  font-weight: 700;
 `;
 
 const Row = styled(motion.div)`
@@ -63,7 +71,7 @@ const Row = styled(motion.div)`
 
 const Box = styled(motion.div)<{ boxbgphoto: string }>`
   background-color: white;
-  height: 150px;
+  height: 200px;
   color: black;
   border-radius: 5px;
   background-image: url(${(props) => props.boxbgphoto});
@@ -95,19 +103,19 @@ const MovieInfoBox = styled(motion.div)`
 
 const BigMovie = styled(motion.div)`
   position: fixed;
-  width: 35vw;
+  width: 45vw;
   min-width: 380px;
-  height: 70vh;
-  background-color: black;
-  top: 100px;
-  left: 0;
-  right: 0;
-  margin: 0 auto;
+  height: 80vh;
+  background-color: ${(props) => props.theme.black.lighter};
   z-index: 99;
   display: flex;
   flex-direction: column;
   border-radius: 10px;
   overflow: hidden;
+  top: 10vh;
+  margin: 0 auto;
+  left: 0;
+  right: 0;
 `;
 
 const BigCoverImg = styled.div`
@@ -134,16 +142,43 @@ const BigOverview = styled.div`
   position: relative;
 `;
 
+const SliderButton = styled.div`
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  svg {
+    z-index: 2;
+    cursor: pointer;
+    width: 50px;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.8);
+    }
+  }
+`;
+
+interface IRowVariantsCustom {
+  isBack: boolean;
+}
+
 const rowVariants = {
-  hidden: {
-    x: window.innerWidth + 5,
-  },
+  hidden: ({ isBack }: IRowVariantsCustom) => ({
+    x: isBack ? -window.innerWidth - 5 : window.innerWidth + 5,
+    opacity: 0,
+  }),
+
   visible: {
     x: 0,
+    opacity: 1,
   },
-  exit: {
-    x: -window.innerWidth - 5,
-  },
+  exit: ({ isBack }: IRowVariantsCustom) => ({
+    x: isBack ? window.innerWidth + 5 : -window.innerWidth - 5,
+    opacity: 0,
+  }),
 };
 
 const boxVariants = {
@@ -162,16 +197,16 @@ const boxVariants = {
 
 const movieInfoBoxVariants = {
   hover: {
-    opacity: 1,
+    opacity: 0.7,
     transition: {
       delay: 0.3,
     },
   },
 };
 
-const offset = 6;
-
 function Home() {
+  const offset = 6;
+
   const history = useHistory();
 
   const bigMovieMatch = useRouteMatch<{ movieId: string }>("/movies/:movieId");
@@ -185,15 +220,31 @@ function Home() {
       () => getMovieInfo(bigMovieMatch ? bigMovieMatch?.params.movieId : "")
     );
 
-  console.log(currentMovieData);
+  // console.log(currentMovieData);
 
   const [sliderIndex, setSliderIndex] = useState(0);
   const [leaving, setLeaving] = useState(false);
+  const [isBack, setIsBack] = useState(false);
+  const decreaseIndex = () => {
+    if (data) {
+      setIsBack(true);
+
+      if (leaving) return;
+      setLeaving(true);
+
+      const totalMovies = data.results.length - 1;
+      const maxPage = Math.floor(totalMovies / offset);
+      setSliderIndex((prev) => (prev === 0 ? maxPage : prev - 1));
+    }
+  };
 
   const increaseIndex = () => {
     if (data) {
+      setIsBack(false);
+
       if (leaving) return;
       setLeaving(true);
+
       const totalMovies = data.results.length - 1;
       const maxPage = Math.floor(totalMovies / offset);
       setSliderIndex((prev) => (prev === maxPage ? 0 : prev + 1));
@@ -223,10 +274,7 @@ function Home() {
         <Loader> Loading ... </Loader>
       ) : (
         <>
-          <Banner
-            onClick={increaseIndex}
-            bgPhoto={makeImagePath(data?.results[0].backdrop_path || "")}
-          >
+          <Banner bgPhoto={makeImagePath(data?.results[0].backdrop_path || "")}>
             <Title>{data?.results[0].title}</Title>
             <Overview>
               {data?.results[0].overview == ""
@@ -235,14 +283,42 @@ function Home() {
             </Overview>
           </Banner>
           <Slider>
-            <AnimatePresence initial={false} onExitComplete={toggleLeaving}>
+            <SliderHeader>Now Playing</SliderHeader>
+            <SliderButton>
+              <motion.svg
+                onClick={decreaseIndex}
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 384 512"
+              >
+                <path
+                  fill="white"
+                  d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l192 192c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 278.6 86.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-192 192z"
+                />
+              </motion.svg>
+              <svg
+                onClick={increaseIndex}
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 384 512"
+              >
+                <path
+                  fill="white"
+                  d="M342.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-192 192c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L274.7 256 105.4 86.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l192 192z"
+                />
+              </svg>
+            </SliderButton>
+            <AnimatePresence
+              initial={false}
+              onExitComplete={toggleLeaving}
+              custom={{ isBack }}
+            >
               <Row
-                key={sliderIndex}
+                custom={{ isBack }}
                 variants={rowVariants}
                 initial="hidden"
                 animate="visible"
                 exit="exit"
-                transition={{ type: "tween", duration: 1 }}
+                transition={{ duration: 0.8 }}
+                key={sliderIndex}
               >
                 {data?.results
                   .slice(1)
@@ -268,8 +344,8 @@ function Home() {
             </AnimatePresence>
           </Slider>
           {bigMovieMatch && (
-            <AnimatePresence>
-              <>
+            <>
+              <AnimatePresence>
                 <motion.div
                   onClick={onBoxCloseClick}
                   animate={{ opacity: 1 }}
@@ -281,6 +357,7 @@ function Home() {
                     position: "fixed",
                     top: 0,
                     opacity: 0,
+                    zIndex: 3,
                   }}
                 ></motion.div>
                 <BigMovie layoutId={bigMovieMatch.params.movieId}>
@@ -307,8 +384,8 @@ function Home() {
                     </>
                   )}
                 </BigMovie>
-              </>
-            </AnimatePresence>
+              </AnimatePresence>
+            </>
           )}
         </>
       )}
