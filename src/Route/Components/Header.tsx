@@ -111,7 +111,9 @@ interface IForm {
 
 function Header() {
   const homeMatch = useRouteMatch("/");
+  const movieMatch = useRouteMatch("/movie");
   const tvMatch = useRouteMatch("/tv");
+  const history = useHistory();
 
   const { register, handleSubmit } = useForm<IForm>();
   const onVaild = (data: IForm) => {
@@ -147,8 +149,6 @@ function Header() {
     });
   }, [scrollY]);
 
-  const history = useHistory();
-
   return (
     <Nav variants={navVariants} initial={"initial"} animate={navAnimation}>
       <Col>
@@ -168,7 +168,9 @@ function Header() {
           <Item>
             <Link to="/">
               Home
-              {homeMatch?.isExact && <Circle layoutId="circle" />}
+              {homeMatch?.isExact || movieMatch?.isExact ? (
+                <Circle layoutId="circle" />
+              ) : null}
             </Link>
           </Item>
           <Item>

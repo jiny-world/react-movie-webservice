@@ -11,7 +11,7 @@ import { motion, AnimatePresence, useScroll } from "framer-motion";
 import { useState } from "react";
 import { useHistory, useRouteMatch } from "react-router-dom";
 import Slider from "../Components/Slider";
-
+import { WatchTypes } from "../utils";
 const Wrapper = styled.div`
   background-color: black;
 `;
@@ -51,11 +51,10 @@ interface IRowVariantsCustom {
 }
 
 function Home() {
-  const history = useHistory();
-
+  const watchType = WatchTypes.movie;
   const { data, isLoading } = useQuery<IGetMoviewsResult>(
-    ["movies", "nowPlaying"],
-    () => getMovies(SliderTypes.nowPlaying)
+    [watchType, "nowPlaying"],
+    () => getMovies(watchType, SliderTypes.nowPlaying)
   );
 
   return (
@@ -72,10 +71,10 @@ function Home() {
                 : data?.results[0].overview}
             </Overview>
           </Banner>
-          <Slider type={SliderTypes.nowPlaying}></Slider>
-          <Slider type={SliderTypes.popular}></Slider>
-          <Slider type={SliderTypes.topRated}></Slider>
-          <Slider type={SliderTypes.upcoming}></Slider>
+          <Slider watchType={watchType} type={SliderTypes.nowPlaying}></Slider>
+          <Slider watchType={watchType} type={SliderTypes.popular}></Slider>
+          <Slider watchType={watchType} type={SliderTypes.topRated}></Slider>
+          <Slider watchType={watchType} type={SliderTypes.upcoming}></Slider>
         </>
       )}
     </Wrapper>

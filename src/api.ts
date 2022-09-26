@@ -8,6 +8,7 @@ interface IMovie {
   poster_path: string;
   title: string;
   overview: string;
+  name: string;
 }
 export interface IGetMoviewsResult {
   dates: {
@@ -23,19 +24,20 @@ export interface IGetMoviewsResult {
 export interface IGetCurrentMovieData {
   overview: string;
   original_title: string;
+  original_name: string;
   vote_average: string;
   backdrop_path: string;
   id: string;
 }
 
-export function getMovies(types: string) {
+export function getMovies(watchType: string, types: string) {
   return fetch(
-    `${BASE_PATH}/movie/${types}?api_key=${API_KEY}&language=${LANGUAGE}&page=1`
+    `${BASE_PATH}/${watchType}/${types}?api_key=${API_KEY}&language=${LANGUAGE}&page=1`
   ).then((response) => response.json());
 }
 
-export function getMovieInfo(movieId: string) {
-  return fetch(`${BASE_PATH}/movie/${movieId}?api_key=${API_KEY}`).then(
+export function getMovieInfo(watchType: string, movieId: string) {
+  return fetch(`${BASE_PATH}/${watchType}/${movieId}?api_key=${API_KEY}`).then(
     (response) => response.json()
   );
 }

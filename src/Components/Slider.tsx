@@ -9,7 +9,7 @@ import {
   getMovieInfo,
   IGetCurrentMovieData,
 } from "../api";
-import { makeImagePath, SliderTypes } from "../utils";
+import { makeImagePath, SliderTypes, WatchTypes } from "../utils";
 
 const SliderRow = styled.div`
   position: relative;
@@ -161,19 +161,32 @@ const movieInfoBoxVariants = {
     },
   },
 };
-function Slider({ type }: { type: SliderTypes }) {
+function Slider({
+  watchType,
+  type,
+}: {
+  watchType: WatchTypes;
+  type: SliderTypes;
+}) {
   const history = useHistory();
   const { data, isLoading } = useQuery<IGetMoviewsResult>(
-    ["movies", type],
-    () => getMovies(type)
+    [watchType, type],
+    () => getMovies(watchType, type)
   );
-  const bigMovieMatch = useRouteMatch<{ movieId: string; types: string }>(
-    `/movies/:types/:movieId`
-  );
+  const bigMovieMatch = useRouteMatch<{
+    watchType: string;
+    movieId: string;
+    types: string;
+  }>(`/:watchType/:types/:movieId`);
   const { data: currentMovieData } = useQuery<IGetCurrentMovieData>(
     ["currentMovieData", bigMovieMatch?.params.movieId],
-    () => getMovieInfo(bigMovieMatch ? bigMovieMatch?.params.movieId : "")
+    () =>
+      getMovieInfo(
+        watchType,
+        bigMovieMatch ? bigMovieMatch?.params.movieId : ""
+      )
   );
+
   const offset = 6;
   const decreaseIndex = () => {
     if (data) {
@@ -209,11 +222,11 @@ function Slider({ type }: { type: SliderTypes }) {
     setLeaving((prev) => !prev);
   };
   const onBoxClick = (movieId: number) => {
-    history.push(`/movies/${type}/${movieId}`);
+    history.push(`/${watchType}/${type}/${movieId}`);
   };
 
   const onBoxCloseClick = () => {
-    history.push(`/`);
+    history.push(`/${watchType}`);
   };
 
   return (
@@ -228,6 +241,10 @@ function Slider({ type }: { type: SliderTypes }) {
             ? "Popular"
             : type === SliderTypes.upcoming
             ? "Upcoming"
+            : type === SliderTypes.onTheAir
+            ? "On Air"
+            : type === SliderTypes.airingToday
+            ? "Airing Today"
             : ""}
         </SliderHeader>
         <SliderButton>
@@ -279,7 +296,7 @@ function Slider({ type }: { type: SliderTypes }) {
                   boxbgphoto={makeImagePath(movie.backdrop_path || "", "w500")}
                 >
                   <MovieInfoBox variants={movieInfoBoxVariants}>
-                    <h4>{movie.title}</h4>
+                    <h4>{movie.title ?? movie.name}</h4>
                   </MovieInfoBox>
                 </Box>
               ))}
@@ -320,11 +337,16 @@ function Slider({ type }: { type: SliderTypes }) {
                       }}
                     >
                       <BigCoverTitle>
-                        {currentMovieData?.original_title}
+                        {currentMovieData?.original_title ??
+                          currentMovieData.original_name}
                       </BigCoverTitle>
                     </BigCoverImg>
                     <BigOverview>
-                      <p>{currentMovieData?.overview}</p>
+                      <p>
+                        {currentMovieData?.overview
+                          ? currentMovieData?.overview.slice(0, 310) + " ..."
+                          : "This movie overview is null "}
+                      </p>
                       <p>{Number(currentMovieData?.vote_average).toFixed(1)}</p>
                     </BigOverview>
                   </>
