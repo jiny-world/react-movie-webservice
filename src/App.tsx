@@ -7,10 +7,15 @@ import Header from "./Route/Components/Header";
 import Home from "./Route/Home";
 import Search from "./Route/Search";
 import Tv from "./Route/Tv";
+import { Helmet } from "react-helmet";
 
 function App() {
   return (
     <>
+      <Helmet>
+        <title>NETFILX</title>
+      </Helmet>
+
       <Router>
         {/* <Router basename={process.env.PUBLIC_URL}> */}
         <Header />

@@ -124,7 +124,7 @@ const BigOverview = styled.div`
   }
 `;
 
-const BigCoverTitle = styled.h2`
+const BigCoverTitle = styled.div`
   color: ${(props) => props.theme.white.lighter};
   font-size: 15px;
   margin: 30px;
@@ -306,8 +306,6 @@ function Slider({
     }
   );
 
-  console.log(currentMovieCredit);
-
   const onBoxClick = (movieId: number) => {
     history.push(`/${watchType}/${type}/${movieId}`);
   };
@@ -330,17 +328,17 @@ function Slider({
       <SliderRow>
         <SliderHeader>
           {type === SliderTypes.nowPlaying
-            ? "Now Playing"
+            ? "현재 상영작"
             : type === SliderTypes.topRated
-            ? "Top Rate"
+            ? "최다 조회수"
             : type === SliderTypes.popular
-            ? "Popular"
+            ? "인기 급상승"
             : type === SliderTypes.upcoming
-            ? "Upcoming"
+            ? "최근 개봉작"
             : type === SliderTypes.onTheAir
-            ? "On Air"
+            ? "현재 방송작"
             : type === SliderTypes.airingToday
-            ? "Airing Today"
+            ? "오늘 상영작"
             : ""}
         </SliderHeader>
         <SliderButton>
@@ -398,119 +396,122 @@ function Slider({
               ))}
           </Row>
         </AnimatePresence>
-        {bigMovieMatch && (
-          <>
-            <AnimatePresence>
-              <motion.div
-                onClick={onBoxCloseClick}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                style={{
-                  width: " 100vw",
-                  height: " 100vh",
-                  backgroundColor: "rgba(0,0,0,0.5)",
-                  position: "fixed",
-                  top: 0,
-                  opacity: 0,
-                  zIndex: 3,
-                  left: 0,
-                }}
-              ></motion.div>
-              <BigMovie
-                layoutId={
-                  bigMovieMatch?.params.types + bigMovieMatch?.params.movieId
-                }
-              >
-                {currentMovieData && (
-                  <>
-                    <BigCoverImg
-                      style={{
-                        backgroundImage: `linear-gradient(to top, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0)),
+      </SliderRow>
+      {bigMovieMatch && (
+        <>
+          <AnimatePresence>
+            <motion.div
+              onClick={onBoxCloseClick}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              style={{
+                width: " 100vw",
+                height: " 100vh",
+                backgroundColor: "rgba(0,0,0,0.5)",
+                position: "fixed",
+                top: 0,
+                opacity: 0,
+                zIndex: 3,
+                left: 0,
+              }}
+            ></motion.div>
+            <BigMovie
+              key={bigMovieMatch?.params.types + bigMovieMatch?.params.movieId}
+              layoutId={
+                bigMovieMatch?.params.types + bigMovieMatch?.params.movieId
+              }
+            >
+              {currentMovieData && (
+                <>
+                  <BigCoverImg
+                    style={{
+                      backgroundImage: `linear-gradient(to top, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0)),
                      url(${makeImagePath(
                        currentMovieData?.backdrop_path,
                        "w400"
                      )})`,
-                      }}
-                    >
-                      <BigCoverTitle>
-                        <h2>
-                          {currentMovieData?.title ?? currentMovieData.name}
-                        </h2>
-                        {currentMovieData?.tagline != "" ? (
-                          <MovieInfo>
-                            <p>{currentMovieData?.tagline}</p>
-                          </MovieInfo>
-                        ) : null}
-                        {bigMovieMatch?.params.watchType === "movie" ? (
-                          <MovieInfo>
-                            <span>{currentMovieData?.release_date}</span>
-                            <span>{getRuntime(currentMovieData?.runtime)}</span>
-                          </MovieInfo>
-                        ) : (
-                          <MovieInfo>
-                            <span>
-                              첫상영일 : {currentMovieData?.first_air_date}
-                            </span>
-                            <span>
-                              시즌 {currentMovieData?.number_of_seasons} 개
-                            </span>
-                            <span>
-                              에피소드 {currentMovieData?.number_of_episodes} 개
-                            </span>
-                          </MovieInfo>
-                        )}
+                    }}
+                  >
+                    <BigCoverTitle>
+                      <h2>
+                        {currentMovieData?.title ?? currentMovieData.name}
+                      </h2>
+                      {currentMovieData?.tagline != "" ? (
+                        <MovieInfo>
+                          <p>{currentMovieData?.tagline}</p>
+                        </MovieInfo>
+                      ) : null}
+                      {bigMovieMatch?.params.watchType === "movie" ? (
+                        <MovieInfo>
+                          <span>{currentMovieData?.release_date}</span>
+                          <span>{getRuntime(currentMovieData?.runtime)}</span>
+                        </MovieInfo>
+                      ) : (
+                        <MovieInfo>
+                          <span>
+                            첫상영일 : {currentMovieData?.first_air_date}
+                          </span>
+                          <span>
+                            시즌 {currentMovieData?.number_of_seasons} 개
+                          </span>
+                          <span>
+                            에피소드 {currentMovieData?.number_of_episodes} 개
+                          </span>
+                        </MovieInfo>
+                      )}
 
-                        <div
-                          style={{
-                            display: "flex",
-                            flexDirection: "row",
-                          }}
-                        >
-                          <MovieGrade>
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              viewBox="0 0 576 512"
-                              fill="yellow"
-                            >
-                              <path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z" />
-                            </svg>
-                            {Number(currentMovieData?.vote_average).toFixed(1)}
-                          </MovieGrade>
-                          {currentMovieData?.genres?.map((genres) => (
-                            <MovieGenres>#{genres.name}</MovieGenres>
-                          ))}
-                        </div>
-                      </BigCoverTitle>
-                    </BigCoverImg>
-                    <BigOverview>
-                      <h1>줄거리</h1>
-                      <p>{currentMovieData?.overview || "준비중입니다."}</p>
-                      <h1>주요 출연진</h1>
-                      <CreditSlider>
-                        {currentMovieCredit?.cast.slice(0, 4).map((actor) => (
-                          <>
-                            <Credit>
-                              <CreditImg
-                                style={{
-                                  backgroundImage: `url(${makeImagePath(
-                                    actor.profile_path || ""
-                                  )})`,
-                                }}
-                              />
-                              <p>{actor.original_name}</p>
-                              <p>{actor.character}</p>
-                            </Credit>
-                          </>
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "row",
+                        }}
+                      >
+                        <MovieGrade>
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 576 512"
+                            fill="yellow"
+                          >
+                            <path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z" />
+                          </svg>
+                          {Number(currentMovieData?.vote_average).toFixed(1)}
+                        </MovieGrade>
+                        {currentMovieData?.genres?.map((genres) => (
+                          <MovieGenres key={genres.id + ""}>
+                            #{genres.name}
+                          </MovieGenres>
                         ))}
-                      </CreditSlider>
-                    </BigOverview>
-                  </>
-                )}
-              </BigMovie>
-            </AnimatePresence>
-          </>
-        )}
-      </SliderRow>
+                      </div>
+                    </BigCoverTitle>
+                  </BigCoverImg>
+                  <BigOverview>
+                    <h1>줄거리</h1>
+                    <p>{currentMovieData?.overview || "준비중입니다."}</p>
+                    <h1>주요 출연진</h1>
+                    <CreditSlider>
+                      {currentMovieCredit?.cast
+                        .slice(0, 4)
+                        .map((actor, index) => (
+                          <Credit key={index}>
+                            <CreditImg
+                              style={{
+                                backgroundImage: `url(${makeImagePath(
+                                  actor.profile_path || ""
+                                )})`,
+                              }}
+                            />
+                            <p>{actor.original_name}</p>
+                            <p>{actor.character}</p>
+                          </Credit>
+                        ))}
+                    </CreditSlider>
+                  </BigOverview>
+                </>
+              )}
+            </BigMovie>
+          </AnimatePresence>
+        </>
+      )}
     </>
   );
 }
