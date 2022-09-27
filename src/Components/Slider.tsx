@@ -8,13 +8,16 @@ import {
   IGetMoviewsResult,
   getMovieInfo,
   IGetCurrentMovieData,
+  IMovieCredit,
+  getCreditInfo,
 } from "../api";
 import { makeImagePath, SliderTypes, WatchTypes } from "../utils";
+import { url } from "inspector";
 
 const SliderRow = styled.div`
   position: relative;
   margin: 20px;
-  height: 200px;
+  height: 450px;
   margin-bottom: 100px;
 `;
 
@@ -65,7 +68,7 @@ const MovieInfoBox = styled(motion.div)`
 `;
 const Box = styled(motion.div)<{ boxbgphoto: string }>`
   background-color: white;
-  height: 200px;
+  height: 450px;
   color: black;
   border-radius: 5px;
   background-image: url(${(props) => props.boxbgphoto});
@@ -83,13 +86,13 @@ const BigMovie = styled(motion.div)`
   position: fixed;
   width: 45vw;
   min-width: 380px;
-  height: 80vh;
+  height: 85vh;
   background-color: ${(props) => props.theme.black.lighter};
   z-index: 99;
   display: flex;
   flex-direction: column;
   border-radius: 10px;
-  overflow: hidden;
+  overflow: auto;
   top: 10vh;
   margin: 0 auto;
   left: 0;
@@ -98,26 +101,91 @@ const BigMovie = styled(motion.div)`
 
 const BigCoverImg = styled.div`
   width: 100%;
-  max-height: 30vh;
-  height: 30vh;
+  height: 40vh;
   background-size: cover;
   background-position: center center;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+`;
+const BigOverview = styled.div`
+  color: ${(props) => props.theme.white.lighter};
+  position: relative;
+  margin: 30px;
+  h1 {
+    font-weight: 700;
+    margin-bottom: 10px;
+    font-size: 17px;
+  }
+  p {
+    margin-bottom: 10px;
+    font-size: 14px;
+  }
 `;
 
 const BigCoverTitle = styled.h2`
   color: ${(props) => props.theme.white.lighter};
-  font-weight: 700;
-  font-size: 40px;
-  margin: 10px;
-  bottom: 0;
-  position: absolute;
+  font-size: 15px;
+  margin: 30px;
+  h2 {
+    font-weight: 700;
+    font-size: 40px;
+  }
 `;
 
-const BigOverview = styled.div`
-  color: ${(props) => props.theme.white.lighter};
-  margin: 10px;
-  position: relative;
+const MovieInfo = styled.div`
+  margin-top: 10px;
+  margin-bottom: 10px;
+  span {
+    margin-right: 30px;
+    font-weight: 400;
+  }
+`;
+
+const MovieGrade = styled.span`
+  border: 1px solid grey;
+  background-color: rgba(87, 87, 87, 1);
+  padding: 6px;
+  border-radius: 5px;
+  svg {
+    width: 15px;
+  }
+`;
+
+const MovieGenres = styled.span`
+  border: 1px solid grey;
+  background-color: rgba(87, 87, 87, 1);
+  padding: 6px;
+  border-radius: 5px;
+  svg {
+    width: 15px;
+  }
+`;
+
+const CreditSlider = styled.div`
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+`;
+
+const Credit = styled.div`
+  display: flex;
+  flex-direction: column;
+  p {
+    text-align: center;
+    &:last-child {
+      font-style: oblique;
+    }
+  }
+`;
+
+const CreditImg = styled.div`
+  height: 200px;
+  background-size: cover;
+  background-position: center center;
+  border-radius: 10px;
+  box-shadow: 0 14px 28px rgb(0 0 0 / 25%), 0 10px 10px rgb(0 0 0 / 22%);
 `;
 
 interface IRowVariantsCustom {
@@ -178,14 +246,6 @@ function Slider({
     movieId: string;
     types: string;
   }>(`/:watchType/:types/:movieId`);
-  const { data: currentMovieData } = useQuery<IGetCurrentMovieData>(
-    ["currentMovieData", bigMovieMatch?.params.movieId],
-    () =>
-      getMovieInfo(
-        watchType,
-        bigMovieMatch ? bigMovieMatch?.params.movieId : ""
-      )
-  );
 
   const offset = 6;
   const decreaseIndex = () => {
@@ -221,12 +281,48 @@ function Slider({
   const toggleLeaving = () => {
     setLeaving((prev) => !prev);
   };
+
+  const { data: currentMovieData } = useQuery<IGetCurrentMovieData>(
+    ["currentMovieData", bigMovieMatch?.params.movieId],
+    () =>
+      getMovieInfo(
+        watchType,
+        bigMovieMatch ? bigMovieMatch?.params.movieId : ""
+      ),
+    {
+      enabled: !!bigMovieMatch?.params.movieId,
+    }
+  );
+
+  const { data: currentMovieCredit } = useQuery<IMovieCredit>(
+    ["currentMovieCredit", bigMovieMatch?.params.movieId],
+    () =>
+      getCreditInfo(
+        watchType,
+        bigMovieMatch ? bigMovieMatch?.params.movieId : ""
+      ),
+    {
+      enabled: !!bigMovieMatch?.params.movieId,
+    }
+  );
+
+  console.log(currentMovieCredit);
+
   const onBoxClick = (movieId: number) => {
     history.push(`/${watchType}/${type}/${movieId}`);
   };
 
   const onBoxCloseClick = () => {
     history.push(`/${watchType}`);
+  };
+
+  const getRuntime = (runtime: number) => {
+    if (runtime >= 60) {
+      const hour = Math.floor(runtime / 60);
+      const min = runtime - 60 * hour;
+      return hour + "시간" + min + "분";
+    }
+    return runtime;
   };
 
   return (
@@ -293,7 +389,7 @@ function Slider({
                   onClick={() => onBoxClick(movie.id)}
                   variants={boxVariants}
                   whileHover="hover"
-                  boxbgphoto={makeImagePath(movie.backdrop_path || "", "w500")}
+                  boxbgphoto={makeImagePath(movie.poster_path || "", "w500")}
                 >
                   <MovieInfoBox variants={movieInfoBoxVariants}>
                     <h4>{movie.title ?? movie.name}</h4>
@@ -329,7 +425,7 @@ function Slider({
                   <>
                     <BigCoverImg
                       style={{
-                        backgroundImage: `linear-gradient(to top, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0)),
+                        backgroundImage: `linear-gradient(to top, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0)),
                      url(${makeImagePath(
                        currentMovieData?.backdrop_path,
                        "w400"
@@ -337,17 +433,76 @@ function Slider({
                       }}
                     >
                       <BigCoverTitle>
-                        {currentMovieData?.original_title ??
-                          currentMovieData.original_name}
+                        <h2>
+                          {currentMovieData?.title ?? currentMovieData.name}
+                        </h2>
+                        {currentMovieData?.tagline != "" ? (
+                          <MovieInfo>
+                            <p>{currentMovieData?.tagline}</p>
+                          </MovieInfo>
+                        ) : null}
+                        {bigMovieMatch?.params.watchType === "movie" ? (
+                          <MovieInfo>
+                            <span>{currentMovieData?.release_date}</span>
+                            <span>{getRuntime(currentMovieData?.runtime)}</span>
+                          </MovieInfo>
+                        ) : (
+                          <MovieInfo>
+                            <span>
+                              첫상영일 : {currentMovieData?.first_air_date}
+                            </span>
+                            <span>
+                              시즌 {currentMovieData?.number_of_seasons} 개
+                            </span>
+                            <span>
+                              에피소드 {currentMovieData?.number_of_episodes} 개
+                            </span>
+                          </MovieInfo>
+                        )}
+
+                        <div
+                          style={{
+                            display: "flex",
+                            flexDirection: "row",
+                          }}
+                        >
+                          <MovieGrade>
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 576 512"
+                              fill="yellow"
+                            >
+                              <path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z" />
+                            </svg>
+                            {Number(currentMovieData?.vote_average).toFixed(1)}
+                          </MovieGrade>
+                          {currentMovieData?.genres?.map((genres) => (
+                            <MovieGenres>#{genres.name}</MovieGenres>
+                          ))}
+                        </div>
                       </BigCoverTitle>
                     </BigCoverImg>
                     <BigOverview>
-                      <p>
-                        {currentMovieData?.overview
-                          ? currentMovieData?.overview.slice(0, 310) + " ..."
-                          : "This movie overview is null "}
-                      </p>
-                      <p>{Number(currentMovieData?.vote_average).toFixed(1)}</p>
+                      <h1>줄거리</h1>
+                      <p>{currentMovieData?.overview || "준비중입니다."}</p>
+                      <h1>주요 출연진</h1>
+                      <CreditSlider>
+                        {currentMovieCredit?.cast.slice(0, 4).map((actor) => (
+                          <>
+                            <Credit>
+                              <CreditImg
+                                style={{
+                                  backgroundImage: `url(${makeImagePath(
+                                    actor.profile_path || ""
+                                  )})`,
+                                }}
+                              />
+                              <p>{actor.original_name}</p>
+                              <p>{actor.character}</p>
+                            </Credit>
+                          </>
+                        ))}
+                      </CreditSlider>
                     </BigOverview>
                   </>
                 )}

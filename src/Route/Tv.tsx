@@ -26,15 +26,18 @@ const Banner = styled.div<{ bgPhoto: string }>`
     url(${(props) => props.bgPhoto});
   // 사진에 검은색 투명도를 설정해서 글씨를 더 잘 보이게 해줌 !
 `;
+
 const Title = styled.h1`
   color: white;
-  font-size: 70px;
+  font-size: 50px;
+  font-weight: 700;
   margin-bottom: 10px;
 `;
 
 const Overview = styled.span`
-  font-size: 25px;
-  width: 50%;
+  font-size: 18px;
+  width: 30%;
+  min-width: 420px;
 `;
 function Tv() {
   const watchType = WatchTypes.tv;
