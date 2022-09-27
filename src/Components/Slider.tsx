@@ -97,6 +97,8 @@ const BigMovie = styled(motion.div)`
   margin: 0 auto;
   left: 0;
   right: 0;
+  overscroll-behavior: contain;
+  box-shadow: rgb(0 0 0 / 75%) 0px 3px 10px;
 `;
 
 const BigCoverImg = styled.div`
@@ -407,11 +409,11 @@ function Slider({
               style={{
                 width: " 100vw",
                 height: " 100vh",
-                backgroundColor: "rgba(0,0,0,0.5)",
+                backgroundColor: "rgba(0,0,0,0.2)",
                 position: "fixed",
                 top: 0,
                 opacity: 0,
-                zIndex: 3,
+                zIndex: 10,
                 left: 0,
               }}
             ></motion.div>
@@ -428,7 +430,7 @@ function Slider({
                       backgroundImage: `linear-gradient(to top, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0)),
                      url(${makeImagePath(
                        currentMovieData?.backdrop_path,
-                       "w400"
+                       "w500"
                      )})`,
                     }}
                   >

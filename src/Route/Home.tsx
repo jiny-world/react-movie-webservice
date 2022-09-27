@@ -55,6 +55,12 @@ function Home() {
     () => getMovies(watchType, SliderTypes.nowPlaying)
   );
 
+  const bigMovieMatch = useRouteMatch<{
+    watchType: string;
+    movieId: string;
+    types: string;
+  }>(`/:watchType/:types/:movieId`);
+
   return (
     <Wrapper>
       {isLoading ? (
@@ -65,7 +71,7 @@ function Home() {
             <Title>{data?.results[0].title}</Title>
             <Overview>
               {data?.results[0].overview == ""
-                ? `this movie overview is null`
+                ? "준비중입니다."
                 : data?.results[0].overview}
             </Overview>
           </Banner>
