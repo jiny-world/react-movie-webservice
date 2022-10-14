@@ -27,6 +27,7 @@ export interface IGetCurrentMovieData {
   name: string;
   vote_average: string;
   backdrop_path: string;
+  poster_path: string;
   id: string;
   runtime: number;
   release_date: string;
@@ -56,6 +57,21 @@ export interface IMovieCredit {
   ];
 }
 
+export interface ISearchResult {
+  results: [
+    {
+      id: number;
+      media_type: string;
+      name: string;
+      poster_path: string;
+      title: string;
+      first_air_date: string;
+      vote_average: number;
+      release_date: string;
+    }
+  ];
+}
+
 export function getMovies(watchType: string, types: string) {
   return fetch(
     `${BASE_PATH}/${watchType}/${types}?api_key=${API_KEY}&language=${LANGUAGE}&page=1`
@@ -71,5 +87,11 @@ export function getMovieInfo(watchType: string, movieId: string) {
 export function getCreditInfo(watchType: string, movieId: string) {
   return fetch(
     `${BASE_PATH}/${watchType}/${movieId}/credits?api_key=${API_KEY}&language=${LANGUAGE}&page=1`
+  ).then((response) => response.json());
+}
+
+export function getMultiSearch(query: string) {
+  return fetch(
+    `${BASE_PATH}/search/multi?api_key=${API_KEY}&language=${LANGUAGE}&query=${query}`
   ).then((response) => response.json());
 }

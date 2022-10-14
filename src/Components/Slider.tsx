@@ -12,7 +12,6 @@ import {
   getCreditInfo,
 } from "../api";
 import { makeImagePath, SliderTypes, WatchTypes } from "../utils";
-import { url } from "inspector";
 
 const SliderRow = styled.div`
   position: relative;
