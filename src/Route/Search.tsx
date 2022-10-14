@@ -387,7 +387,7 @@ function Search() {
                   </BigCoverImg>
                   <BigOverview>
                     <h1>줄거리</h1>
-                    <p>{currentMovieData?.overview || "준비중입니다."}</p>
+                    <p>{currentMovieData?.overview || "준비중입니다. "}</p>
                     <h1>주요 출연진</h1>
                     <CreditSlider>
                       {currentMovieCredit?.cast
