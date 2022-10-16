@@ -27,7 +27,7 @@ const List = styled.div`
 
 const Title = styled.div`
   font-size: 30px;
-  b {
+  strong {
     font-weight: 700;
   }
   margin: 30px;
@@ -267,31 +267,33 @@ function Search() {
   return (
     <Wrapper>
       <Title>
-        <b>{keyword}</b>에 대한 검색 결과입니다.
+        <strong>{keyword}</strong>
+        {Number(searchResult?.results.length) !== 0
+          ? `에 대한 검색 결과입니다.`
+          : `에 대한 검색 결과가 없습니다.`}
       </Title>
       <AnimatePresence>
         <List>
-          {searchResult &&
-            searchResult?.results.map((movie) => (
-              <MovieBox key={"search" + movie.id}>
-                <Box
-                  layoutId={movie.media_type + movie.id}
-                  whileHover="hover"
-                  boxbgphoto={makeImagePath(movie.poster_path || "", "w500")}
-                  variants={boxVariants}
-                  onClick={() => onBoxClick(movie.id, movie.media_type)}
-                >
-                  <BoxBackground variants={movieInfoBoxVariants}>
-                    더보기
-                  </BoxBackground>
-                </Box>
-                <MovieInfoBox key={movie.id}>
-                  <h4>{movie.title ?? movie.name}</h4>
-                  <h4>개봉일 : {movie.first_air_date ?? movie.release_date}</h4>
-                  <h4>평점 : {movie.vote_average} 점</h4>
-                </MovieInfoBox>
-              </MovieBox>
-            ))}
+          {searchResult?.results.map((movie) => (
+            <MovieBox key={"search" + movie.id}>
+              <Box
+                layoutId={movie.media_type + movie.id}
+                whileHover="hover"
+                boxbgphoto={makeImagePath(movie.poster_path || "", "w500")}
+                variants={boxVariants}
+                onClick={() => onBoxClick(movie.id, movie.media_type)}
+              >
+                <BoxBackground variants={movieInfoBoxVariants}>
+                  더보기
+                </BoxBackground>
+              </Box>
+              <MovieInfoBox key={movie.id}>
+                <h4>{movie.title ?? movie.name}</h4>
+                <h4>개봉일 : {movie.first_air_date ?? movie.release_date}</h4>
+                <h4>평점 : {movie.vote_average} 점</h4>
+              </MovieInfoBox>
+            </MovieBox>
+          ))}
         </List>
       </AnimatePresence>
 
